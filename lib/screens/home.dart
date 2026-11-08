@@ -1,3 +1,6 @@
+import 'package:clima/services/location.dart';
+import 'package:clima/services/networking.dart';
+import 'package:clima/utilities/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -9,8 +12,16 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  bool isDataLoaded = false;
+  double? latitude, longitude;
   GeolocatorPlatform geolocatorPlatform = GeolocatorPlatform.instance;
   LocationPermission? permission;
+
+  @override
+  void initState() {
+    super.initState();
+    getPermission();
+  }
 
   void getPermission() async {
     permission = await geolocatorPlatform.checkPermission();
@@ -34,35 +45,34 @@ class _HomeState extends State<Home> {
   }
 
   Future<void> getLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.low,
-        ),
-      );
-      debugPrint("780: ${position.latitude}");
-      debugPrint("380: ${position.longitude}");
-    } catch (e) {
-      debugPrint("Web location error: $e");
-    }
+    Location location = Location();
+    await location.getCurrentLocation();
+    latitude = location.latitude;
+    longitude = location.longitude;
+    NetWorkHelper netWorkHelper = NetWorkHelper(
+        "https://api.openweathermap.org/data/2.5/weather?lat=$latitude&lon=$longitude&appid=$apiKey");
+    var weatherData = await netWorkHelper.getData();
+    setState(() {
+      isDataLoaded = true;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ElevatedButton(
-            onPressed: () {
-              getPermission();
-            },
-            child: const Text(
-              'Get Location',
-              style: TextStyle(fontSize: 16),
-            ),
-          ),
+    if (!isDataLoaded) {
+      return Center(
+        child: Text('Loading...'),
+      );
+    } else {
+      return const Scaffold(
+        body: const SafeArea(
+          child: const Center(),
         ),
-      ),
-    );
+      );
+    }
   }
 }
+
+// var id = decodedData['weather'][0]['id'];
+// var temperature = decodedData['main']['temp'];
+// var cityName = decodedData['name'];
