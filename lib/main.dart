@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'language_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:clima/l10n/app_localizations.dart';
 
 void main() {
   runApp(
@@ -20,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final languageProvider = Provider.of<LanguageProvider>(context);
     return MaterialApp(
-      locale: languageProvider.currentLocale,
+      debugShowCheckedModeBanner: false,
       supportedLocales: const [
         Locale('en'),
         Locale('fa'),
@@ -30,10 +33,12 @@ class MyApp extends StatelessWidget {
         Locale('de'),
       ],
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      locale: Provider.of<LanguageProvider>(context).currentLocale,
       title: 'Clima',
       theme: ThemeData.dark(),
       home: const Home(),

@@ -1,20 +1,18 @@
-import 'package:http/http.dart';
 import 'dart:convert';
 
-class NetWorkHelper{
-  String url;
+import 'package:http/http.dart' as http;
+
+class NetWorkHelper {
+  final String url;
 
   NetWorkHelper(this.url);
 
-
-  Future getData() async {
-    Response response = await get(Uri.parse(url));
+  Future<Map<String, dynamic>> getData() async {
+    final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
-      String data = response.body;
-      return jsonDecode(data);
-
-    } else {
-      print(response.statusCode);
+      return jsonDecode(response.body) as Map<String, dynamic>;
     }
+    throw Exception(
+        'Weather request failed with status ${response.statusCode}.');
   }
 }
